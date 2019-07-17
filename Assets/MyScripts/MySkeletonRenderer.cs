@@ -139,6 +139,12 @@ public class MySkeletonRenderer : MonoBehaviour
 
                 if (bodyJoint.Status != Astra.JointStatus.NotTracked)
                 {
+
+                    if (bodyJoint.Type != recordJointType) {
+                        skeletonJoint.SetActive(false);
+                    }
+
+
                     skeletonJoint.transform.localPosition =
                         new Vector3(bodyJoint.WorldPosition.X / 1000f,
                                     bodyJoint.WorldPosition.Y / 1000f,
