@@ -155,6 +155,78 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &52749661
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 52749663}
+  - component: {fileID: 52749662}
+  m_Layer: 0
+  m_Name: JointTracker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &52749662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 52749661}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4996cd29cc20587479ce62cfc1866c1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  JointRoot: {fileID: 720827276}
+  PlayerRoot: {fileID: 119228522}
+  JointPrefab: {fileID: 100000, guid: 1190a34979a38ae4db353c77e7cd2281, type: 2}
+--- !u!4 &52749663
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 52749661}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 119228522}
+  m_Father: {fileID: 0}
+  m_RootOrder: 9
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &119228521
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 119228522}
+  m_Layer: 0
+  m_Name: PlayerRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &119228522
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 119228521}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 52749663}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &133807838
 GameObject:
   m_ObjectHideFlags: 0
@@ -548,46 +620,6 @@ MonoBehaviour:
   ToggleOptimizationBalanced: {fileID: 0}
   ToggleOptimizationMemory: {fileID: 0}
   SliderOptimization: {fileID: 0}
-  Prefab_Head_Neck: {fileID: 1232987121558086, guid: 3acc07f7165eb984d96866d4394824cb,
-    type: 2}
-  Prefab_MidSpine_ShoulderSpine: {fileID: 1643505600021568, guid: 244f0eb6c1c01484a8abe30a20f16f32,
-    type: 2}
-  Prefab_BaseSpine_MidSpine: {fileID: 1940542505492760, guid: db6076adff1342f419c3d78b7b3b918f,
-    type: 2}
-  Prefab_LeftShoulder_LeftElbow: {fileID: 1878650818997902, guid: 8ba5b07f252242c498c0a6070abd5acf,
-    type: 2}
-  Prefab_LeftElbow_LeftWrist: {fileID: 1011503815991606, guid: 3aa97296db41ad347b337dfe2c678427,
-    type: 2}
-  Prefab_ShoudlerSpine_LeftShoulder: {fileID: 1933337829016554, guid: 95c99fbcffb96e0438203797bc18f65c,
-    type: 2}
-  Prefab_ShoulderSpine_RightShoulder: {fileID: 1511556746136670, guid: 5660dcd6cffdb0e429a099f127b11610,
-    type: 2}
-  Prefab_RightShoulder_RightElbow: {fileID: 1878650818997902, guid: 8ba5b07f252242c498c0a6070abd5acf,
-    type: 2}
-  Prefab_RightElbow_RightWrist: {fileID: 1011503815991606, guid: 3aa97296db41ad347b337dfe2c678427,
-    type: 2}
-  Prefab_ShoulderSpine_Neck: {fileID: 1382011715145628, guid: e622471797ca39f4a8c3f26b63412b8e,
-    type: 2}
-  Prefab_BaseSpine_LeftHip: {fileID: 1901415044764098, guid: 23ad5aea179c0784a95a80ee09e021ea,
-    type: 2}
-  Prefab_LeftHip_LeftKnee: {fileID: 1005966235980610, guid: 7da9465b41d335f4e9e1cf9ef8aca745,
-    type: 2}
-  Prefab_LeftKnee_LeftFoot: {fileID: 1192905060110064, guid: cc5e8232de15ccd42b437f7ed5a04a38,
-    type: 2}
-  Prefab_BaseSpine_RightHip: {fileID: 1566752785709934, guid: 10554b580da38564fa71944c4c1be745,
-    type: 2}
-  Prefab_RightHip_RightKnee: {fileID: 1326787505410280, guid: a39c9186344bf1d4098d2d5f401b5f02,
-    type: 2}
-  Prefab_RightKnee_RightFoot: {fileID: 1863632218076670, guid: 924b5d6d64aecb9429d6ca1f94fd458f,
-    type: 2}
-  Prefab_Head_bone: {fileID: 1354505891590534, guid: 8ef33162ace1d834e9b6e69c9d84a1a4,
-    type: 2}
-  Prefab_LeftHand: {fileID: 1019149159165302, guid: 3e57d166e8c94f14482b178021a9f4d4,
-    type: 2}
-  Prefab_RightHand: {fileID: 1019149159165302, guid: 3e57d166e8c94f14482b178021a9f4d4,
-    type: 2}
-  SelectionJointPrefab: {fileID: 1927735652150314, guid: 8924e280320b8934b9f7bcc10f13f9e5,
-    type: 2}
 --- !u!4 &699983104
 Transform:
   m_ObjectHideFlags: 0
