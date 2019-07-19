@@ -41,8 +41,6 @@ public class MySkeletonRenderer : MonoBehaviour
 
     #region Record&Replay variables
     public static Astra.JointType recordJointType = Astra.JointType.LeftHand;
-    private Astra.Joint recordJoint = null;
-    public static JointStats recordJointStats = new JointStats();
     public static JointStats[] AllJointStats = new JointStats[19];
     #endregion
 
@@ -116,6 +114,7 @@ public class MySkeletonRenderer : MonoBehaviour
                 {
                     joints[i] = (GameObject)Instantiate(JointPrefab, Vector3.zero, Quaternion.identity);
                     joints[i].transform.SetParent(JointRoot);
+                    joints[i].name = body.Joints[i].Type.ToString();
                 }
                 _bodySkeletons.Add(body.Id, joints);
                 newBody = true;
@@ -139,10 +138,17 @@ public class MySkeletonRenderer : MonoBehaviour
 
                 if (bodyJoint.Status != Astra.JointStatus.NotTracked)
                 {
+                    if (!skeletonJoint.activeSelf)
+                    {
+                        skeletonJoint.SetActive(true);
+                    }
 
+
+                    /*
                     if (bodyJoint.Type != recordJointType) {
                         skeletonJoint.SetActive(false);
                     }
+                    */
 
 
                     skeletonJoint.transform.localPosition =
@@ -178,26 +184,16 @@ public class MySkeletonRenderer : MonoBehaviour
 
                     skeletonJoint.transform.localScale = NormalPoseScale;
 
-
+                    /*
                     int index = MyStatRecorder.TypeToNumber(bodyJoint.Type);
                     AllJointStats[index].updateStats(bodyJoint.WorldPosition.X / 1000f,
                                                      bodyJoint.WorldPosition.Y / 1000f,
                                                      bodyJoint.WorldPosition.Z / 1000f);
+                    */
 
                     /*
                     string stats = AllJointStats[index].toString();
                     Debug.Log(stats);
-                    */
-
-                    /*
-                    if (bodyJoint.Type == recordJointType)
-                    {
-                        recordJoint = bodyJoint;
-
-                        recordJointStats.updateStats(recordJoint.WorldPosition.X / 1000f,
-                                                     recordJoint.WorldPosition.Y / 1000f,
-                                                     recordJoint.WorldPosition.Z / 1000f);
-                    }
                     */
                 }
                 else
