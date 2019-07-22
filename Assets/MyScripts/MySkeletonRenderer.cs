@@ -1,6 +1,6 @@
 ﻿/* Created by: Alex Wang, Anjie Wang
- * Date: 07/01/2019
- * MySkeletonRenderer is responsible for creating and rendering the joints and the bones.
+ * Date: 07/22/2019
+ * MySkeletonRenderer is responsible for creating and rendering the joints.
  * It is adapted from the original SkeletonRenderer from the Astra Orbbec SDK 2.0.16.
  */
 using UnityEngine.UI;
@@ -39,35 +39,13 @@ public class MySkeletonRenderer : MonoBehaviour
     private Astra.SkeletonProfile _previousSkeletonProfile = Astra.SkeletonProfile.Full;
     private Astra.SkeletonOptimization _previousSkeletonOptimization = Astra.SkeletonOptimization.BestAccuracy;
 
-    #region Record&Replay variables
-    public static Astra.JointType recordJointType = Astra.JointType.LeftHand;
-    public static JointStats[] AllJointStats = new JointStats[19];
-    #endregion
+    public int numBody;
 
     void Start()
     {
+        numBody = 0;
         _bodySkeletons = new Dictionary<int, GameObject[]>();
         _bodies = new Astra.Body[Astra.BodyFrame.MaxBodies];
-
-        AllJointStats[0] = new JointStats(Astra.JointType.BaseSpine.ToString());
-        AllJointStats[1] = new JointStats(Astra.JointType.Head.ToString());
-        AllJointStats[2] = new JointStats(Astra.JointType.LeftElbow.ToString());
-        AllJointStats[3] = new JointStats(Astra.JointType.LeftFoot.ToString());
-        AllJointStats[4] = new JointStats(Astra.JointType.LeftHand.ToString());
-        AllJointStats[5] = new JointStats(Astra.JointType.LeftHip.ToString());
-        AllJointStats[6] = new JointStats(Astra.JointType.LeftKnee.ToString());
-        AllJointStats[7] = new JointStats(Astra.JointType.LeftShoulder.ToString());
-        AllJointStats[8] = new JointStats(Astra.JointType.LeftWrist.ToString());
-        AllJointStats[9] = new JointStats(Astra.JointType.MidSpine.ToString());
-        AllJointStats[10] = new JointStats(Astra.JointType.Neck.ToString());
-        AllJointStats[11] = new JointStats(Astra.JointType.RightElbow.ToString());
-        AllJointStats[12] = new JointStats(Astra.JointType.RightFoot.ToString());
-        AllJointStats[13] = new JointStats(Astra.JointType.RightHand.ToString());
-        AllJointStats[14] = new JointStats(Astra.JointType.RightHip.ToString());
-        AllJointStats[15] = new JointStats(Astra.JointType.RightKnee.ToString());
-        AllJointStats[16] = new JointStats(Astra.JointType.RightShoulder.ToString());
-        AllJointStats[17] = new JointStats(Astra.JointType.RightWrist.ToString());
-        AllJointStats[18] = new JointStats(Astra.JointType.ShoulderSpine.ToString());
     }
 
     public void OnNewFrame(Astra.BodyStream bodyStream, Astra.BodyFrame frame)
@@ -97,10 +75,12 @@ public class MySkeletonRenderer : MonoBehaviour
     {
         foreach (var body in bodies)
         {
+            numBody++;
 
             if (body.Status == Astra.BodyStatus.NotTracking)
             {
-                continue;
+                numBody--;
+                continue;  
             }
 
             GameObject[] joints;
@@ -183,18 +163,6 @@ public class MySkeletonRenderer : MonoBehaviour
                         Quaternion.LookRotation(jointForward, jointUp);
 
                     skeletonJoint.transform.localScale = NormalPoseScale;
-
-                    /*
-                    int index = MyStatRecorder.TypeToNumber(bodyJoint.Type);
-                    AllJointStats[index].updateStats(bodyJoint.WorldPosition.X / 1000f,
-                                                     bodyJoint.WorldPosition.Y / 1000f,
-                                                     bodyJoint.WorldPosition.Z / 1000f);
-                    */
-
-                    /*
-                    string stats = AllJointStats[index].toString();
-                    Debug.Log(stats);
-                    */
                 }
                 else
                 {

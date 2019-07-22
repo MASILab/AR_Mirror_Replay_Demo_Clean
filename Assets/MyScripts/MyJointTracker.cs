@@ -1,9 +1,15 @@
-﻿using System.Collections;
+﻿/* Created by: Alex Wang, Anjie Wang
+ * Date: 07/01/2019
+ * MySkeletonRenderer is responsible for creating and rendering the joints and the bones.
+ * It is adapted from the original SkeletonRenderer from the Astra Orbbec SDK 2.0.16.
+ */
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MyJointTracker : MonoBehaviour {
-    private static Dictionary<Astra.JointType, List<Vector3?>> _jointGroup = new Dictionary<Astra.JointType, List<Vector3?>>() {
+    public static Dictionary<Astra.JointType, List<Vector3?>> jointStats = new Dictionary<Astra.JointType, List<Vector3?>>() {
         {Astra.JointType.BaseSpine, new List<Vector3?>() },
         {Astra.JointType.Head, new List<Vector3?>() },
         {Astra.JointType.LeftElbow, new List<Vector3?>() },
@@ -26,7 +32,7 @@ public class MyJointTracker : MonoBehaviour {
     };
 
     //To be used to interate through the joints
-    private readonly Astra.JointType[] Joints = new Astra.JointType[]
+    public static readonly Astra.JointType[] Joints = new Astra.JointType[]
     {
         Astra.JointType.BaseSpine,
         Astra.JointType.Head,
@@ -50,98 +56,22 @@ public class MyJointTracker : MonoBehaviour {
     };
 
     public Transform JointRoot;
-    public Transform PlayerRoot;
-    private bool onRecord;
     private float beginTime;
-    public GameObject JointPrefab;
-    private GameObject leftHand;
-    private GameObject[] joints;
-    private int index;
+    private const float RECORDLENGTH = 15f;
 
     // Use this for initialization
     void Start () {
         beginTime = Time.time;
-        onRecord = true;
-        index = 0;
-
-        /*
-        joints = new GameObject[19];
-        for (int i = 0; i < Joints.Length; ++i)
-        {
-            joints[i] = (GameObject)Instantiate(JointPrefab, Vector3.zero, Quaternion.identity);
-            joints[i].name = "Replay_" + Joints[i].ToString();
-            joints[i].transform.SetParent(PlayerRoot);
-        }
-        */
-        
     }
 	
 
 	// Update is called once per frame
 	void Update () {
-        if (Time.time - beginTime >= 5)
+        if (Time.time - beginTime >= RECORDLENGTH)
         {
-            onRecord = false;
-            //GameObject.Find("SkeletonViewer").SetActive(false);
-
-            /*
-            for (int i = 0; i < Joints.Length; ++i)
-            {
-                Astra.JointType jointType = Joints[i];
-                if (index < _jointGroup[jointType].Count)
-                {
-                    if (_jointGroup[jointType][index] == null)
-                    {
-                        joints[i].SetActive(false);
-                        Debug.Log(joints[i].name + " index: " + index + "does not have data");
-                    }
-                    else
-                    {
-                        joints[i].SetActive(true);
-                        joints[i].transform.position = (Vector3)_jointGroup[jointType][index];
-                        Debug.Log(joints[i].name + " index: " + index + " position: " + joints[i].transform.position);
-                    }
-                }
-            }
-            index++;
-            */
-
-
-
-
-            //Debug.Log("End of Record");
-
-            ///*
-            leftHand = (GameObject)Instantiate(JointPrefab, Vector3.zero, Quaternion.identity);
-            if (index < _jointGroup[Astra.JointType.LeftHand].Count)
-            {
-                if (_jointGroup[Astra.JointType.LeftHand][index] == null)
-                {
-                    leftHand.SetActive(false);
-                    Debug.Log(index + " is null");
-                    index++;
-                }
-                else
-                {
-                    leftHand.SetActive(true);
-                    leftHand.transform.position = (Vector3)_jointGroup[Astra.JointType.LeftHand][index];
-                    Debug.Log(index + " position: " + _jointGroup[Astra.JointType.LeftHand][index]);
-                    index++;
-                }
-            }
-            else
-            {
-                Destroy(leftHand);
-                Debug.Log("leftHand is destoryed");
-            }
-            //*/
-            
-
+            SceneManager.LoadScene("Replay");
         }
-        if (onRecord)
-        {
-            Record();
-        }
+        Record();
 	}
 
     private void Record()
@@ -151,13 +81,13 @@ public class MyJointTracker : MonoBehaviour {
             GameObject myJoint = JointRoot.transform.Find(joint.ToString()).gameObject;
             if (myJoint == null)
             {
-                _jointGroup[joint] = null;
+                jointStats[joint] = null;
                 Debug.Log(joint.ToString() + " not detected");
             }
             else
             {
-                _jointGroup[joint].Add(myJoint.transform.position);
-                Debug.Log(joint.ToString() + " Stats: " + _jointGroup[joint][_jointGroup[joint].Count - 1]);
+                jointStats[joint].Add(myJoint.transform.position);
+                Debug.Log(joint.ToString() + " Stats: " + jointStats[joint][jointStats[joint].Count - 1]);
             }
         }
     }

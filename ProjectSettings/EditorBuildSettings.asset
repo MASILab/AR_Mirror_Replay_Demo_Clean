@@ -8,10 +8,13 @@ EditorBuildSettings:
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Scenes/SplashScreen.unity
-    guid: 0b8d2cc526637ec43b6a22fc0dcdb313
-  - enabled: 1
-    path: Assets/Scenes/BoneDemo.unity
+    path: Assets/Scenes/Record.unity
     guid: d2977e1cb4f81d7419b68298664bc431
+  - enabled: 1
+    path: Assets/Scenes/Replay.unity
+    guid: 86c15b3d9637abf4595a5fc5892f207b
   m_configObjects: {}
