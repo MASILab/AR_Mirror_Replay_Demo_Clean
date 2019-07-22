@@ -1,7 +1,7 @@
-﻿/* Created by: Alex Wang, Anjie Wang
- * Date: 07/01/2019
- * MySkeletonRenderer is responsible for creating and rendering the joints and the bones.
- * It is adapted from the original SkeletonRenderer from the Astra Orbbec SDK 2.0.16.
+﻿/* Created by: Alex Wang
+ * Date: 07/22/2019
+ * MyJointTracker is responsible for locating and recording the positions of the joints in the game.
+ * It records for a fixed amount of time and automatically switches to the replay scene.  
  */
 using System.Collections;
 using System.Collections.Generic;

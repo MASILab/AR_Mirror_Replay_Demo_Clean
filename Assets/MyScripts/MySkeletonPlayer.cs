@@ -1,4 +1,9 @@
-﻿using System.Collections;
+﻿/* Created by: Alex Wang
+ * Date: 07/22/2019
+ * MySkeletonPlayer is responsible for rendering the skeleton based on the recorded data.
+ * It automatically switches to the record scene once the data is exhausted.
+ */
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
