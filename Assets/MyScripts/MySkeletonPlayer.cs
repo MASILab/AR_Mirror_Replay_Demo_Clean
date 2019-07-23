@@ -1,12 +1,13 @@
 ﻿/* Created by: Alex Wang
  * Date: 07/22/2019
  * MySkeletonPlayer is responsible for rendering the skeleton based on the recorded data.
- * It automatically switches to the record scene once the data is exhausted.
+ * It automatically switches to the record scene after three rounds of replay.
  */
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MySkeletonPlayer : MonoBehaviour
 {
@@ -17,8 +18,14 @@ public class MySkeletonPlayer : MonoBehaviour
     private int index;
     bool isOver;
 
+    private const int MAXROUNDS = 3;
+    private int roundCounter;
+    public Text roundText;
+
     void Start()
     {
+        roundCounter = 1;
+        roundText.text = roundCounter.ToString();
         isOver = false;
         index = 0;
         joints = new GameObject[19];
@@ -32,41 +39,76 @@ public class MySkeletonPlayer : MonoBehaviour
 
     void Update()
     {
-        if (!isOver)
+        if (roundCounter <= MAXROUNDS)
         {
-            for (int i = 0; i < MyJointTracker.Joints.Length; ++i)
+            if (!isOver)
             {
-                Astra.JointType jointType = MyJointTracker.Joints[i];
-                if (index < MyJointTracker.jointStats[jointType].Count)
+                isOver = DisplaySkeleton(MyJointTracker.jointStats, index);
+                index++;
+                /*
+                for (int i = 0; i < MyJointTracker.Joints.Length; ++i)
                 {
-                    if (MyJointTracker.jointStats[jointType][index] == null)
+                    Astra.JointType jointType = MyJointTracker.Joints[i];
+                    if (index < MyJointTracker.jointStats[jointType].Count)
                     {
-                        joints[i].SetActive(false);
-                        //Debug.Log(joints[i].name + " index: " + index + "does not have data");
+                        if (MyJointTracker.jointStats[jointType][index] == null)
+                        {
+                            joints[i].SetActive(false);
+                            //Debug.Log(joints[i].name + " index: " + index + "does not have data");
+                        }
+                        else
+                        {
+                            joints[i].SetActive(true);
+                            joints[i].transform.localPosition = (Vector3)MyJointTracker.jointStats[jointType][index];
+                            joints[i].transform.localScale = JOINTSCALE;
+                            //Debug.Log(joints[i].name + " index: " + index + " position: " + joints[i].transform.position);
+                        }
                     }
+                    //Reached the end of the recorded stats if index >= Count
                     else
                     {
-                        joints[i].SetActive(true);
-                        joints[i].transform.localPosition = (Vector3)MyJointTracker.jointStats[jointType][index];
-                        joints[i].transform.localScale = JOINTSCALE;
-                        //Debug.Log(joints[i].name + " index: " + index + " position: " + joints[i].transform.position);
+                        isOver = true;
                     }
                 }
-                //Reached the end of the recorded stats if index >= Count
-                else
-                {
-                    isOver = true;
-                }
+                index++;
+                */
             }
-            index++;
+            else
+            {
+                index = 0;
+                isOver = false;
+                roundCounter++;
+                roundText.text = roundCounter.ToString();
+            }
         }
-        //If over, resets the stats container
+        //Resets the stats container after all the rounds
         else
         {
+            roundText.text = "Switching to recording mode";
             Reset(MyJointTracker.jointStats);
             SceneManager.LoadScene("Record");
         }
 
+    }
+
+    //Return true if frameIndex goes beyond jointsStats
+    bool DisplaySkeleton(Dictionary<Astra.JointType, List<Vector3?>> jointStats, int frameIndex)
+    {
+        for (int i = 0; i < MyJointTracker.Joints.Length; ++i)
+        {
+            Astra.JointType jointType = MyJointTracker.Joints[i];
+
+            //End of the record session
+            if (frameIndex >= jointStats[jointType].Count)
+            {
+                return true;
+            }
+
+            joints[i].SetActive(true);
+            joints[i].transform.localPosition = (Vector3)MyJointTracker.jointStats[jointType][frameIndex];
+            joints[i].transform.localScale = JOINTSCALE;
+        }
+        return false;
     }
 
     void Reset(Dictionary<Astra.JointType, List<Vector3?>> _jointGroup)
