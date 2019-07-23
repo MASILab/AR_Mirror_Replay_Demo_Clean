@@ -9,7 +9,7 @@ Done:
 
 Need to do:
 # 1. Need to fix the issue when player steps out of camera's fov the recorder stops recording
-   # Most likely caused by the transform.Find() after the gameobject gets destroyed
+   # Most likely caused by transform.Find() after the gameobject gets destroyed
 2. Bone rendering
 3. Extra joint object in the middle of the screen?
 4. Juggling/Kicking videos
