@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 
 public class MySkeletonPlayer : MonoBehaviour
 {
-    private readonly Vector3 JOINTSCALE = new Vector3(1f, 1f, 1f); 
+    private readonly Vector3 JOINTSCALE = new Vector3(1f, 1f, 1f);
     public GameObject JointPrefab;
     public GameObject[] joints;
     public Transform PlayerRoot;
@@ -32,7 +32,8 @@ public class MySkeletonPlayer : MonoBehaviour
 
     void Update()
     {
-        if (!isOver) {
+        if (!isOver)
+        {
             for (int i = 0; i < MyJointTracker.Joints.Length; ++i)
             {
                 Astra.JointType jointType = MyJointTracker.Joints[i];
@@ -65,7 +66,7 @@ public class MySkeletonPlayer : MonoBehaviour
             Reset(MyJointTracker.jointStats);
             SceneManager.LoadScene("Record");
         }
-        
+
     }
 
     void Reset(Dictionary<Astra.JointType, List<Vector3?>> _jointGroup)

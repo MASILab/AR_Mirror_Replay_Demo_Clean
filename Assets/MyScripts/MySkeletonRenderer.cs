@@ -1,6 +1,7 @@
-﻿/* Created by: Alex Wang, Anjie Wang
+﻿/* Created by: Alex Wang
  * Date: 07/22/2019
  * MySkeletonRenderer is responsible for creating and rendering the joints.
+ * It only renders the first body detected by the Orbbec for the sake of recording.
  * It is adapted from the original SkeletonRenderer from the Astra Orbbec SDK 2.0.16.
  */
 using UnityEngine.UI;
@@ -39,11 +40,8 @@ public class MySkeletonRenderer : MonoBehaviour
     private Astra.SkeletonProfile _previousSkeletonProfile = Astra.SkeletonProfile.Full;
     private Astra.SkeletonOptimization _previousSkeletonOptimization = Astra.SkeletonOptimization.BestAccuracy;
 
-    public int numBody;
-
     void Start()
     {
-        numBody = 0;
         _bodySkeletons = new Dictionary<int, GameObject[]>();
         _bodies = new Astra.Body[Astra.BodyFrame.MaxBodies];
     }
@@ -65,111 +63,115 @@ public class MySkeletonRenderer : MonoBehaviour
 
         frame.CopyBodyData(ref _bodies);
         UpdateSkeletonsFromBodies(_bodies);
+
+        /*
         UpdateBodyFeatures(bodyStream, _bodies);
         UpdateSkeletonProfile(bodyStream);
         UpdateSkeletonOptimization(bodyStream);
+        */
     }
 
 
     void UpdateSkeletonsFromBodies(Astra.Body[] bodies)
     {
-        foreach (var body in bodies)
+        //foreach (var body in bodies)
+        //{
+        Astra.Body body = bodies[0];
+
+        if (body.Status == Astra.BodyStatus.NotTracking)
         {
-            numBody++;
+            return;
+            //continue;  
+        }
 
-            if (body.Status == Astra.BodyStatus.NotTracking)
+        GameObject[] joints;
+        bool newBody = false;
+
+        if (!_bodySkeletons.ContainsKey(body.Id))
+        {
+            //Instantiate joint gameobjects
+            joints = new GameObject[body.Joints.Length];
+            for (int i = 0; i < joints.Length; i++)
             {
-                numBody--;
-                continue;  
+                joints[i] = (GameObject)Instantiate(JointPrefab, Vector3.zero, Quaternion.identity);
+                joints[i].transform.SetParent(JointRoot);
+                joints[i].name = body.Joints[i].Type.ToString();
             }
+            _bodySkeletons.Add(body.Id, joints);
+            newBody = true;
+        }
+        else
+        {
+            joints = _bodySkeletons[body.Id];
+        }
 
-            GameObject[] joints;
-            bool newBody = false;
+        //Log if a new body is detected
+        if (newBody)
+        {
+            StartCoroutine(GetRequest("https://docs.google.com/forms/d/e/1FAIpQLSe9t2ffOIQF2zNo-W3mGsA0jW0Fpba65AW1vk8C8YI9o1Akyg/formResponse?entry.365241968=REPLAYDEMO&fvv=1"));
+        }
 
-            if (!_bodySkeletons.ContainsKey(body.Id))
+        //Render the joints
+        for (int i = 0; i < body.Joints.Length; i++)
+        {
+            var skeletonJoint = joints[i];
+            var bodyJoint = body.Joints[i];
+
+            if (bodyJoint.Status != Astra.JointStatus.NotTracked)
             {
-                //Instantiate joint gameobjects
-                joints = new GameObject[body.Joints.Length];
-                for (int i = 0; i < joints.Length; i++)
+                if (!skeletonJoint.activeSelf)
                 {
-                    joints[i] = (GameObject)Instantiate(JointPrefab, Vector3.zero, Quaternion.identity);
-                    joints[i].transform.SetParent(JointRoot);
-                    joints[i].name = body.Joints[i].Type.ToString();
+                    skeletonJoint.SetActive(true);
                 }
-                _bodySkeletons.Add(body.Id, joints);
-                newBody = true;
+
+
+                /*
+                if (bodyJoint.Type != recordJointType) {
+                    skeletonJoint.SetActive(false);
+                }
+                */
+
+
+                skeletonJoint.transform.localPosition =
+                    new Vector3(bodyJoint.WorldPosition.X / 1000f,
+                                bodyJoint.WorldPosition.Y / 1000f,
+                                bodyJoint.WorldPosition.Z / 1000f);
+
+
+                //skel.Joints[i].Orient.Matrix:
+                // 0, 			1,	 		2,
+                // 3, 			4, 			5,
+                // 6, 			7, 			8
+                // -------
+                // right(X),	up(Y), 		forward(Z)
+
+                //Vector3 jointRight = new Vector3(
+                //    bodyJoint.Orientation.M00,
+                //    bodyJoint.Orientation.M10,
+                //    bodyJoint.Orientation.M20);
+
+                Vector3 jointUp = new Vector3(
+                    bodyJoint.Orientation.M01,
+                    bodyJoint.Orientation.M11,
+                    bodyJoint.Orientation.M21);
+
+                Vector3 jointForward = new Vector3(
+                    bodyJoint.Orientation.M02,
+                    bodyJoint.Orientation.M12,
+                    bodyJoint.Orientation.M22);
+
+                skeletonJoint.transform.rotation =
+                    Quaternion.LookRotation(jointForward, jointUp);
+
+                skeletonJoint.transform.localScale = NormalPoseScale;
             }
             else
             {
-                joints = _bodySkeletons[body.Id];
-            }
-
-            //Log if a new body is detected
-            if (newBody)
-            {
-                StartCoroutine(GetRequest("https://docs.google.com/forms/d/e/1FAIpQLSe9t2ffOIQF2zNo-W3mGsA0jW0Fpba65AW1vk8C8YI9o1Akyg/formResponse?entry.365241968=REPLAYDEMO&fvv=1"));
-            }
-
-            //Render the joints
-            for (int i = 0; i < body.Joints.Length; i++)
-            {
-                var skeletonJoint = joints[i];
-                var bodyJoint = body.Joints[i];
-
-                if (bodyJoint.Status != Astra.JointStatus.NotTracked)
-                {
-                    if (!skeletonJoint.activeSelf)
-                    {
-                        skeletonJoint.SetActive(true);
-                    }
-
-
-                    /*
-                    if (bodyJoint.Type != recordJointType) {
-                        skeletonJoint.SetActive(false);
-                    }
-                    */
-
-
-                    skeletonJoint.transform.localPosition =
-                        new Vector3(bodyJoint.WorldPosition.X / 1000f,
-                                    bodyJoint.WorldPosition.Y / 1000f,
-                                    bodyJoint.WorldPosition.Z / 1000f);
-
-
-                    //skel.Joints[i].Orient.Matrix:
-                    // 0, 			1,	 		2,
-                    // 3, 			4, 			5,
-                    // 6, 			7, 			8
-                    // -------
-                    // right(X),	up(Y), 		forward(Z)
-
-                    //Vector3 jointRight = new Vector3(
-                    //    bodyJoint.Orientation.M00,
-                    //    bodyJoint.Orientation.M10,
-                    //    bodyJoint.Orientation.M20);
-
-                    Vector3 jointUp = new Vector3(
-                        bodyJoint.Orientation.M01,
-                        bodyJoint.Orientation.M11,
-                        bodyJoint.Orientation.M21);
-
-                    Vector3 jointForward = new Vector3(
-                        bodyJoint.Orientation.M02,
-                        bodyJoint.Orientation.M12,
-                        bodyJoint.Orientation.M22);
-
-                    skeletonJoint.transform.rotation =
-                        Quaternion.LookRotation(jointForward, jointUp);
-
-                    skeletonJoint.transform.localScale = NormalPoseScale;
-                }
-                else
-                {
-                    if (skeletonJoint.activeSelf) skeletonJoint.SetActive(false);
-                }
+                if (skeletonJoint.activeSelf) skeletonJoint.SetActive(false);
             }
         }
+        //}
+
     }
 
     #region Helper Methods

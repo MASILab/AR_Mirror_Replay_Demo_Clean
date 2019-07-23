@@ -57,7 +57,8 @@ public class MyJointTracker : MonoBehaviour {
 
     public Transform JointRoot;
     private float beginTime;
-    private const float RECORDLENGTH = 15f;
+    //Set to be public so that it is visible to MyCountDownTimer class
+    public const float RECORDLENGTH = 15f;
 
     // Use this for initialization
     void Start () {
@@ -79,8 +80,11 @@ public class MyJointTracker : MonoBehaviour {
         foreach (var joint in Joints)
         {
             GameObject myJoint = JointRoot.transform.Find(joint.ToString()).gameObject;
-            if (myJoint == null)
+            
+            //Problem
+            if (!myJoint)
             {
+                myJoint = JointRoot.transform.Find(joint.ToString()).gameObject;
                 jointStats[joint] = null;
                 Debug.Log(joint.ToString() + " not detected");
             }
@@ -88,7 +92,7 @@ public class MyJointTracker : MonoBehaviour {
             {
                 jointStats[joint].Add(myJoint.transform.position);
                 Debug.Log(joint.ToString() + " Stats: " + jointStats[joint][jointStats[joint].Count - 1]);
-            }
+            }            
         }
     }
 }
