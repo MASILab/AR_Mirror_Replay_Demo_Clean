@@ -57,6 +57,7 @@ public class MyJointTracker : MonoBehaviour {
 
     public Transform JointRoot;
     private float beginTime;
+    private float pauseTime;
     //Set to be public so that it is visible to MyCountDownTimer class
     public const float RECORDLENGTH = 15f;
 
@@ -68,12 +69,19 @@ public class MyJointTracker : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        if (Time.time - beginTime >= RECORDLENGTH)
+        if (MySkeletonRenderer.isTracking) {
+            Record();
+        }
+        else
+        {
+            pauseTime++;
+        }
+
+        if (Time.time - beginTime >= RECORDLENGTH + pauseTime)
         {
             SceneManager.LoadScene("Replay");
         }
-        Record();
-	}
+    }
 
     private void Record()
     {
@@ -86,12 +94,12 @@ public class MyJointTracker : MonoBehaviour {
             {
                 myJoint = JointRoot.transform.Find(joint.ToString()).gameObject;
                 jointStats[joint] = null;
-                Debug.Log(joint.ToString() + " not detected");
+                //Debug.Log(joint.ToString() + " not detected");
             }
             else
             {
                 jointStats[joint].Add(myJoint.transform.position);
-                Debug.Log(joint.ToString() + " Stats: " + jointStats[joint][jointStats[joint].Count - 1]);
+                //Debug.Log(joint.ToString() + " Stats: " + jointStats[joint][jointStats[joint].Count - 1]);
             }            
         }
     }

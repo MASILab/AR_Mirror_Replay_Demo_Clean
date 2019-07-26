@@ -641,6 +641,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 102dacdbe91a3bd4f9ca8aafa4084de3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  joints: []
+  newBody: 0
   JointPrefab: {fileID: 1414733690807290, guid: 06273bc1b20a8c446a22a1ad5c0cfa61,
     type: 2}
   JointRoot: {fileID: 720827276}

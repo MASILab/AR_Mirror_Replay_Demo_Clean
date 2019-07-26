@@ -16,6 +16,10 @@ public class MySkeletonRenderer : MonoBehaviour
 
     private Astra.Body[] _bodies;
     private Dictionary<int, GameObject[]> _bodySkeletons;
+    public static bool isTracking;
+    public Astra.Body trackingBody;
+    public GameObject[] joints;
+    public bool newBody;
 
     private readonly Vector3 NormalPoseScale = new Vector3(0.05f, 0.05f, 0.05f);
     private readonly Vector3 GripPoseScale = new Vector3(0.2f, 0.2f, 0.2f);
@@ -44,6 +48,18 @@ public class MySkeletonRenderer : MonoBehaviour
     {
         _bodySkeletons = new Dictionary<int, GameObject[]>();
         _bodies = new Astra.Body[Astra.BodyFrame.MaxBodies];
+        isTracking = false;
+        newBody = true;
+        trackingBody = null;
+        joints = new GameObject[19];
+        for (int i = 0; i < MyJointTracker.Joints.Length; ++i)
+        {
+            joints[i] = (GameObject)Instantiate(JointPrefab, Vector3.zero, Quaternion.identity);
+            joints[i].transform.SetParent(JointRoot);
+            joints[i].name = MyJointTracker.Joints[i].ToString();
+            Debug.Log("Instantiated: " + joints[i].name);
+            //joints[i].SetActive(true);
+        }
     }
 
     public void OnNewFrame(Astra.BodyStream bodyStream, Astra.BodyFrame frame)
@@ -74,104 +90,104 @@ public class MySkeletonRenderer : MonoBehaviour
 
     void UpdateSkeletonsFromBodies(Astra.Body[] bodies)
     {
-        //foreach (var body in bodies)
-        //{
-        Astra.Body body = bodies[0];
-
-        if (body.Status == Astra.BodyStatus.NotTracking)
-        {
-            return;
-            //continue;  
-        }
-
-        GameObject[] joints;
-        bool newBody = false;
-
-        if (!_bodySkeletons.ContainsKey(body.Id))
-        {
-            //Instantiate joint gameobjects
-            joints = new GameObject[body.Joints.Length];
-            for (int i = 0; i < joints.Length; i++)
+        //If nothing is being tracked or the tracking body has not been assigned or is lost, find the first new body to track
+        if (!isTracking || trackingBody == null || trackingBody.Status == Astra.BodyStatus.NotTracking) {
+            Debug.Log("Lost tracking. Finding new body to track...");
+            foreach (var body in bodies)
             {
-                joints[i] = (GameObject)Instantiate(JointPrefab, Vector3.zero, Quaternion.identity);
-                joints[i].transform.SetParent(JointRoot);
-                joints[i].name = body.Joints[i].Type.ToString();
+                if (body.Status == Astra.BodyStatus.Tracking)
+                {
+                    newBody = true;
+                    isTracking = true;
+                    trackingBody = body;
+                    Debug.Log("New body detected. Id: " + trackingBody.Id + " Status: " + trackingBody.Status + " isTracking: " + isTracking.ToString());
+                    break;
+                }
             }
-            _bodySkeletons.Add(body.Id, joints);
-            newBody = true;
-        }
-        else
-        {
-            joints = _bodySkeletons[body.Id];
         }
 
+        //Post condition check
+        if (trackingBody != null) {
+            //If the camera did not detect any new body after the tracking body is lost, reset
+            if (trackingBody.Status == Astra.BodyStatus.NotTracking)
+            {
+                isTracking = false;
+                trackingBody = null;
+                newBody = false;
+            }
+        }
+
+        
         //Log if a new body is detected
         if (newBody)
         {
             StartCoroutine(GetRequest("https://docs.google.com/forms/d/e/1FAIpQLSe9t2ffOIQF2zNo-W3mGsA0jW0Fpba65AW1vk8C8YI9o1Akyg/formResponse?entry.365241968=REPLAYDEMO&fvv=1"));
+            newBody = false;
+            Debug.Log("Logging new player");
         }
+        
 
-        //Render the joints
-        for (int i = 0; i < body.Joints.Length; i++)
-        {
-            var skeletonJoint = joints[i];
-            var bodyJoint = body.Joints[i];
-
-            if (bodyJoint.Status != Astra.JointStatus.NotTracked)
+        if (trackingBody != null) {
+            //Render the joints
+            for (int i = 0; i < trackingBody.Joints.Length; i++)
             {
-                if (!skeletonJoint.activeSelf)
+                var skeletonJoint = joints[i];
+                var bodyJoint = trackingBody.Joints[i];
+
+                if (bodyJoint.Status != Astra.JointStatus.NotTracked)
                 {
-                    skeletonJoint.SetActive(true);
+                    if (!skeletonJoint.activeSelf)
+                    {
+                        skeletonJoint.SetActive(true);
+                    }
+
+
+                    /*
+                    if (bodyJoint.Type != recordJointType) {
+                        skeletonJoint.SetActive(false);
+                    }
+                    */
+
+
+                    skeletonJoint.transform.localPosition =
+                        new Vector3(bodyJoint.WorldPosition.X / 1000f,
+                                    bodyJoint.WorldPosition.Y / 1000f,
+                                    bodyJoint.WorldPosition.Z / 1000f);
+
+
+                    //skel.Joints[i].Orient.Matrix:
+                    // 0, 			1,	 		2,
+                    // 3, 			4, 			5,
+                    // 6, 			7, 			8
+                    // -------
+                    // right(X),	up(Y), 		forward(Z)
+
+                    //Vector3 jointRight = new Vector3(
+                    //    bodyJoint.Orientation.M00,
+                    //    bodyJoint.Orientation.M10,
+                    //    bodyJoint.Orientation.M20);
+
+                    Vector3 jointUp = new Vector3(
+                        bodyJoint.Orientation.M01,
+                        bodyJoint.Orientation.M11,
+                        bodyJoint.Orientation.M21);
+
+                    Vector3 jointForward = new Vector3(
+                        bodyJoint.Orientation.M02,
+                        bodyJoint.Orientation.M12,
+                        bodyJoint.Orientation.M22);
+
+                    skeletonJoint.transform.rotation =
+                        Quaternion.LookRotation(jointForward, jointUp);
+
+                    skeletonJoint.transform.localScale = NormalPoseScale;
                 }
-
-
-                /*
-                if (bodyJoint.Type != recordJointType) {
-                    skeletonJoint.SetActive(false);
+                else
+                {
+                    if (skeletonJoint.activeSelf) skeletonJoint.SetActive(false);
                 }
-                */
-
-
-                skeletonJoint.transform.localPosition =
-                    new Vector3(bodyJoint.WorldPosition.X / 1000f,
-                                bodyJoint.WorldPosition.Y / 1000f,
-                                bodyJoint.WorldPosition.Z / 1000f);
-
-
-                //skel.Joints[i].Orient.Matrix:
-                // 0, 			1,	 		2,
-                // 3, 			4, 			5,
-                // 6, 			7, 			8
-                // -------
-                // right(X),	up(Y), 		forward(Z)
-
-                //Vector3 jointRight = new Vector3(
-                //    bodyJoint.Orientation.M00,
-                //    bodyJoint.Orientation.M10,
-                //    bodyJoint.Orientation.M20);
-
-                Vector3 jointUp = new Vector3(
-                    bodyJoint.Orientation.M01,
-                    bodyJoint.Orientation.M11,
-                    bodyJoint.Orientation.M21);
-
-                Vector3 jointForward = new Vector3(
-                    bodyJoint.Orientation.M02,
-                    bodyJoint.Orientation.M12,
-                    bodyJoint.Orientation.M22);
-
-                skeletonJoint.transform.rotation =
-                    Quaternion.LookRotation(jointForward, jointUp);
-
-                skeletonJoint.transform.localScale = NormalPoseScale;
-            }
-            else
-            {
-                if (skeletonJoint.activeSelf) skeletonJoint.SetActive(false);
             }
         }
-        //}
-
     }
 
     #region Helper Methods

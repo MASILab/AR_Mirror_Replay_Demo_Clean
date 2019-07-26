@@ -20,14 +20,16 @@ public class MyCountDownTimer : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        startTime -= 1 * Time.deltaTime;
-        countDownTimer.text = startTime.ToString("0");
+        if (MySkeletonRenderer.isTracking) {
+            startTime -= 1 * Time.deltaTime;
+            countDownTimer.text = startTime.ToString("0");
 
-        //This part will not actually be executed since SceneManager automatically switches to replay scene once recording time is over.
-        //Keep for the reusablity.
-        if (startTime < 0)
-        {
-            startTime = 0;
+            //This part will not actually be executed since SceneManager automatically switches to replay scene once recording time is over.
+            //Keep for the reusablity.
+            if (startTime < 0)
+            {
+                startTime = 0;
+            }
         }
 	}
 }

@@ -11,6 +11,15 @@ using UnityEngine.UI;
 
 public class MySkeletonPlayer : MonoBehaviour
 {
+
+    public LineRenderer leftArm;
+    public LineRenderer rightArm;
+    public LineRenderer leftLeg;
+    public LineRenderer rightLeg;
+    public LineRenderer torso;
+
+
+
     private readonly Vector3 JOINTSCALE = new Vector3(1f, 1f, 1f);
     public GameObject JointPrefab;
     public GameObject[] joints;
@@ -45,33 +54,6 @@ public class MySkeletonPlayer : MonoBehaviour
             {
                 isOver = DisplaySkeleton(MyJointTracker.jointStats, index);
                 index++;
-                /*
-                for (int i = 0; i < MyJointTracker.Joints.Length; ++i)
-                {
-                    Astra.JointType jointType = MyJointTracker.Joints[i];
-                    if (index < MyJointTracker.jointStats[jointType].Count)
-                    {
-                        if (MyJointTracker.jointStats[jointType][index] == null)
-                        {
-                            joints[i].SetActive(false);
-                            //Debug.Log(joints[i].name + " index: " + index + "does not have data");
-                        }
-                        else
-                        {
-                            joints[i].SetActive(true);
-                            joints[i].transform.localPosition = (Vector3)MyJointTracker.jointStats[jointType][index];
-                            joints[i].transform.localScale = JOINTSCALE;
-                            //Debug.Log(joints[i].name + " index: " + index + " position: " + joints[i].transform.position);
-                        }
-                    }
-                    //Reached the end of the recorded stats if index >= Count
-                    else
-                    {
-                        isOver = true;
-                    }
-                }
-                index++;
-                */
             }
             else
             {
@@ -111,6 +93,7 @@ public class MySkeletonPlayer : MonoBehaviour
         return false;
     }
 
+    //Clear all data
     void Reset(Dictionary<Astra.JointType, List<Vector3?>> _jointGroup)
     {
         for (int i = 0; i < MyJointTracker.Joints.Length; ++i)
@@ -119,4 +102,53 @@ public class MySkeletonPlayer : MonoBehaviour
             _jointGroup[jointType].Clear();
         }
     }
+
+    #region Bones structure
+
+    /// <summary>
+    /// Bone is connector of two joints
+    /// </summary>
+    private struct Bone
+    {
+        public Astra.JointType ParentJointType;
+        public Astra.JointType EndJointType;
+
+        public Bone(Astra.JointType parentJointType, Astra.JointType endJointType)
+        {
+            ParentJointType = parentJointType;
+            EndJointType = endJointType;
+        }
+    };
+
+    /// <summary>
+    /// Skeleton structure = list of bones = list of joint connectors
+    /// </summary>
+    private static readonly Bone[] Bones = new Bone[]
+    {
+            // spine, neck, and head
+            new Bone(Astra.JointType.BaseSpine, Astra.JointType.MidSpine),
+            new Bone(Astra.JointType.MidSpine, Astra.JointType.ShoulderSpine),
+            new Bone(Astra.JointType.ShoulderSpine, Astra.JointType.Neck),
+            new Bone(Astra.JointType.Neck, Astra.JointType.Head),
+            // left arm
+            new Bone(Astra.JointType.ShoulderSpine, Astra.JointType.LeftShoulder),
+            new Bone(Astra.JointType.LeftShoulder, Astra.JointType.LeftElbow),
+            new Bone(Astra.JointType.LeftElbow, Astra.JointType.LeftWrist),
+            new Bone(Astra.JointType.LeftWrist, Astra.JointType.LeftHand),
+            // right arm
+            new Bone(Astra.JointType.ShoulderSpine, Astra.JointType.RightShoulder),
+            new Bone(Astra.JointType.RightShoulder, Astra.JointType.RightElbow),
+            new Bone(Astra.JointType.RightElbow, Astra.JointType.RightWrist),
+            new Bone(Astra.JointType.RightWrist, Astra.JointType.RightHand),
+            // left leg
+            new Bone(Astra.JointType.BaseSpine, Astra.JointType.LeftHip),
+            new Bone(Astra.JointType.LeftHip, Astra.JointType.LeftKnee),
+            new Bone(Astra.JointType.LeftKnee, Astra.JointType.LeftFoot),
+            // right leg
+            new Bone(Astra.JointType.BaseSpine, Astra.JointType.RightHip),
+            new Bone(Astra.JointType.RightHip, Astra.JointType.RightKnee),
+            new Bone(Astra.JointType.RightKnee, Astra.JointType.RightFoot),
+    };
+
+    #endregion
 }
