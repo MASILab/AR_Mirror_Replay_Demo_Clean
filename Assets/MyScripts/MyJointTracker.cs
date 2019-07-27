@@ -7,28 +7,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MyJointTracker : MonoBehaviour {
-    public static Dictionary<Astra.JointType, List<Vector3?>> jointStats = new Dictionary<Astra.JointType, List<Vector3?>>() {
-        {Astra.JointType.BaseSpine, new List<Vector3?>() },
-        {Astra.JointType.Head, new List<Vector3?>() },
-        {Astra.JointType.LeftElbow, new List<Vector3?>() },
-        {Astra.JointType.LeftFoot, new List<Vector3?>() },
-        {Astra.JointType.LeftHand, new List<Vector3?>() },
-        {Astra.JointType.LeftHip, new List<Vector3?>() },
-        {Astra.JointType.LeftKnee, new List<Vector3?>() },
-        {Astra.JointType.LeftShoulder, new List<Vector3?>() },
-        {Astra.JointType.LeftWrist, new List<Vector3?>() },
-        {Astra.JointType.MidSpine, new List<Vector3?>() },
-        {Astra.JointType.Neck, new List<Vector3?>() },
-        {Astra.JointType.RightElbow, new List<Vector3?>() },
-        {Astra.JointType.RightFoot, new List<Vector3?>() },
-        {Astra.JointType.RightHand, new List<Vector3?>() },
-        {Astra.JointType.RightHip, new List<Vector3?>() },
-        {Astra.JointType.RightKnee, new List<Vector3?>() },
-        {Astra.JointType.RightShoulder, new List<Vector3?>() },
-        {Astra.JointType.RightWrist, new List<Vector3?>() },
-        {Astra.JointType.ShoulderSpine, new List<Vector3?>() }
+    public static Dictionary<Astra.JointType, List<Vector3>> jointStats = new Dictionary<Astra.JointType, List<Vector3>>() {
+        {Astra.JointType.BaseSpine, new List<Vector3>() },
+        {Astra.JointType.Head, new List<Vector3>() },
+        {Astra.JointType.LeftElbow, new List<Vector3>() },
+        {Astra.JointType.LeftFoot, new List<Vector3>() },
+        {Astra.JointType.LeftHand, new List<Vector3>() },
+        {Astra.JointType.LeftHip, new List<Vector3>() },
+        {Astra.JointType.LeftKnee, new List<Vector3>() },
+        {Astra.JointType.LeftShoulder, new List<Vector3>() },
+        {Astra.JointType.LeftWrist, new List<Vector3>() },
+        {Astra.JointType.MidSpine, new List<Vector3>() },
+        {Astra.JointType.Neck, new List<Vector3>() },
+        {Astra.JointType.RightElbow, new List<Vector3>() },
+        {Astra.JointType.RightFoot, new List<Vector3>() },
+        {Astra.JointType.RightHand, new List<Vector3>() },
+        {Astra.JointType.RightHip, new List<Vector3>() },
+        {Astra.JointType.RightKnee, new List<Vector3>() },
+        {Astra.JointType.RightShoulder, new List<Vector3>() },
+        {Astra.JointType.RightWrist, new List<Vector3>() },
+        {Astra.JointType.ShoulderSpine, new List<Vector3>() }
     };
 
     //To be used to interate through the joints
@@ -56,6 +57,7 @@ public class MyJointTracker : MonoBehaviour {
     };
 
     public Transform JointRoot;
+    public Text MessageOnPause;
     private float beginTime;
     private float pauseTime;
     //Set to be public so that it is visible to MyCountDownTimer class
@@ -69,17 +71,28 @@ public class MyJointTracker : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        if (MySkeletonRenderer.isTracking) {
+        if (Time.time - beginTime >= RECORDLENGTH + pauseTime)
+        {
+            SceneManager.LoadScene("Replay");
+        }
+
+        if (MySkeletonRenderer.bodyExists) {
+            if (MessageOnPause.IsActive())
+            {
+                MessageOnPause.gameObject.SetActive(false);
+                //Debug.Log("MessageOnPause is now disabled");
+            }
             Record();
         }
         else
         {
-            pauseTime++;
-        }
-
-        if (Time.time - beginTime >= RECORDLENGTH + pauseTime)
-        {
-            SceneManager.LoadScene("Replay");
+            if (!MessageOnPause.IsActive())
+            {
+                MessageOnPause.gameObject.SetActive(true);
+                //Debug.Log("MessageOnPause is now enabled");
+            }
+            pauseTime += 1 * Time.deltaTime;
+            //Debug.Log("Pause Time: " + pauseTime);
         }
     }
 
@@ -88,19 +101,7 @@ public class MyJointTracker : MonoBehaviour {
         foreach (var joint in Joints)
         {
             GameObject myJoint = JointRoot.transform.Find(joint.ToString()).gameObject;
-            
-            //Problem
-            if (!myJoint)
-            {
-                myJoint = JointRoot.transform.Find(joint.ToString()).gameObject;
-                jointStats[joint] = null;
-                //Debug.Log(joint.ToString() + " not detected");
-            }
-            else
-            {
-                jointStats[joint].Add(myJoint.transform.position);
-                //Debug.Log(joint.ToString() + " Stats: " + jointStats[joint][jointStats[joint].Count - 1]);
-            }            
+            jointStats[joint].Add(myJoint.transform.position);           
         }
     }
 }

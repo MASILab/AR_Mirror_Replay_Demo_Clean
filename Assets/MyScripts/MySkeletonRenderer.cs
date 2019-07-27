@@ -15,8 +15,7 @@ public class MySkeletonRenderer : MonoBehaviour
     private long _lastFrameIndex = -1;
 
     private Astra.Body[] _bodies;
-    private Dictionary<int, GameObject[]> _bodySkeletons;
-    public static bool isTracking;
+    public static bool bodyExists;
     public Astra.Body trackingBody;
     public GameObject[] joints;
     public bool newBody;
@@ -46,10 +45,9 @@ public class MySkeletonRenderer : MonoBehaviour
 
     void Start()
     {
-        _bodySkeletons = new Dictionary<int, GameObject[]>();
         _bodies = new Astra.Body[Astra.BodyFrame.MaxBodies];
-        isTracking = false;
-        newBody = true;
+        bodyExists = false;
+        newBody = false;
         trackingBody = null;
         joints = new GameObject[19];
         for (int i = 0; i < MyJointTracker.Joints.Length; ++i)
@@ -57,8 +55,8 @@ public class MySkeletonRenderer : MonoBehaviour
             joints[i] = (GameObject)Instantiate(JointPrefab, Vector3.zero, Quaternion.identity);
             joints[i].transform.SetParent(JointRoot);
             joints[i].name = MyJointTracker.Joints[i].ToString();
-            Debug.Log("Instantiated: " + joints[i].name);
-            //joints[i].SetActive(true);
+            joints[i].SetActive(false);
+            //Debug.Log("Instantiated: " + joints[i].name);
         }
     }
 
@@ -91,16 +89,16 @@ public class MySkeletonRenderer : MonoBehaviour
     void UpdateSkeletonsFromBodies(Astra.Body[] bodies)
     {
         //If nothing is being tracked or the tracking body has not been assigned or is lost, find the first new body to track
-        if (!isTracking || trackingBody == null || trackingBody.Status == Astra.BodyStatus.NotTracking) {
-            Debug.Log("Lost tracking. Finding new body to track...");
+        if (!bodyExists || trackingBody == null || trackingBody.Status == Astra.BodyStatus.NotTracking) {
+            //Debug.Log("Lost tracking. Finding new body to track...");
             foreach (var body in bodies)
             {
                 if (body.Status == Astra.BodyStatus.Tracking)
                 {
                     newBody = true;
-                    isTracking = true;
+                    bodyExists = true;
                     trackingBody = body;
-                    Debug.Log("New body detected. Id: " + trackingBody.Id + " Status: " + trackingBody.Status + " isTracking: " + isTracking.ToString());
+                    //Debug.Log("New body detected. Id: " + trackingBody.Id + " Status: " + trackingBody.Status + " isTracking: " + isTracking.ToString());
                     break;
                 }
             }
@@ -108,10 +106,10 @@ public class MySkeletonRenderer : MonoBehaviour
 
         //Post condition check
         if (trackingBody != null) {
-            //If the camera did not detect any new body after the tracking body is lost, reset
+            //If the camera does not detect any new body after the tracking body is lost, reset
             if (trackingBody.Status == Astra.BodyStatus.NotTracking)
             {
-                isTracking = false;
+                bodyExists = false;
                 trackingBody = null;
                 newBody = false;
             }
@@ -123,7 +121,7 @@ public class MySkeletonRenderer : MonoBehaviour
         {
             StartCoroutine(GetRequest("https://docs.google.com/forms/d/e/1FAIpQLSe9t2ffOIQF2zNo-W3mGsA0jW0Fpba65AW1vk8C8YI9o1Akyg/formResponse?entry.365241968=REPLAYDEMO&fvv=1"));
             newBody = false;
-            Debug.Log("Logging new player");
+            //Debug.Log("Logging new player");
         }
         
 
@@ -140,13 +138,6 @@ public class MySkeletonRenderer : MonoBehaviour
                     {
                         skeletonJoint.SetActive(true);
                     }
-
-
-                    /*
-                    if (bodyJoint.Type != recordJointType) {
-                        skeletonJoint.SetActive(false);
-                    }
-                    */
 
 
                     skeletonJoint.transform.localPosition =
@@ -364,58 +355,4 @@ public class MySkeletonRenderer : MonoBehaviour
         ToggleOptimizationBalanced.isOn = optimization == Astra.SkeletonOptimization.Balanced;
         ToggleOptimizationAccuracy.isOn = optimization == Astra.SkeletonOptimization.BestAccuracy;
     }
-
-    #region jointStats Class
-
-    public class JointStats
-    {
-        public static float fps = 30;   //needs to be fixed
-
-        public Astra.Joint joint = null;
-        public string jointType;
-        public float posX, posY, posZ;
-        private float posX0 = 0, posY0 = 0, posZ0 = 0;
-
-        public float velX, velY, velZ;
-        private float velX0 = 0, velY0 = 0, velZ0 = 0;
-        public float VelMag = 0;
-
-        public float accX, accY, accZ;
-        private float accX0 = 0, accY0 = 0, accZ0 = 0;
-        public float AccMag = 0;
-
-        public JointStats(string type = "unknown joint", float posX1 = 0, float posY1 = 0, float posZ1 = 0)
-        {
-            jointType = type;
-            posX = posX1; posY = posY1; posZ = posZ1;
-            posX0 = posX; posY0 = posY; posZ0 = posZ;
-        }
-
-        public void updateStats(float posX1, float posY1, float posZ1)
-        {
-            float t = (float)1.0 / fps;
-
-            posX0 = posX; posY0 = posY; posZ0 = posZ;
-            posX = posX1; posY = posY1; posZ = posZ1;
-
-            velX0 = velX; velY0 = velY; velZ0 = velZ;
-            velX = (posX - posX0) / t; velY = (posY - posY0) / t; velZ = (posZ - posZ0) / t;
-            VelMag = Mathf.Pow(velX, 2) + Mathf.Pow(velY, 2) + Mathf.Pow(velZ, 2);
-            VelMag = Mathf.Sqrt(VelMag);
-
-            accX0 = accX; accY0 = accY; accZ0 = accZ;
-            accX = (velX - velX0) / t; accY = (velY - velY0) / t; accZ = (velZ - velZ0) / t;
-            AccMag = Mathf.Pow(accX, 2) + Mathf.Pow(accY, 2) + Mathf.Pow(accZ, 2);
-            AccMag = Mathf.Sqrt(AccMag);
-        }
-
-        public string toString()
-        {
-            return jointType + "\n"
-                + "Position " + string.Format("X: {0:+00.00;-00.00}", posX) + string.Format(" Y: {0:+00.00;-00.00}", posX) + string.Format(" Z: {0:+00.00;-00.00}", posX) + "\n";
-        }
-
-    }
-
-    #endregion
 }

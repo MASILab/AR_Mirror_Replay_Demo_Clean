@@ -140,7 +140,7 @@ public class SkeletonRenderer : MonoBehaviour
                 }
                 else
                 {
-                   if (skeletonJoint.activeSelf) skeletonJoint.SetActive(false);
+                    if (skeletonJoint.activeSelf) skeletonJoint.SetActive(false);
                 }
             }
         }

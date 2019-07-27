@@ -20,7 +20,7 @@ public class MyCountDownTimer : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (MySkeletonRenderer.isTracking) {
+        if (MySkeletonRenderer.bodyExists) {
             startTime -= 1 * Time.deltaTime;
             countDownTimer.text = startTime.ToString("0");
 
