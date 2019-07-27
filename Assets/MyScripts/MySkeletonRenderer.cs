@@ -175,7 +175,7 @@ public class MySkeletonRenderer : MonoBehaviour
                 }
                 else
                 {
-                    if (skeletonJoint.activeSelf) skeletonJoint.SetActive(false);
+                    if (joints[i].activeSelf) joints[i].SetActive(false);
                 }
             }
         }
