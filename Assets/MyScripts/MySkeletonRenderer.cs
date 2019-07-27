@@ -146,7 +146,7 @@ public class MySkeletonRenderer : MonoBehaviour
                                     bodyJoint.WorldPosition.Z / 1000f);
 
 
-                    //skel.Joints[i].Orient.Matrix:
+                    //skeletonJoint.Orient.Matrix:
                     // 0, 			1,	 		2,
                     // 3, 			4, 			5,
                     // 6, 			7, 			8
@@ -175,7 +175,7 @@ public class MySkeletonRenderer : MonoBehaviour
                 }
                 else
                 {
-                    if (joints[i].activeSelf) joints[i].SetActive(false);
+                    if (skeletonJoint.activeSelf) skeletonJoint.SetActive(false);
                 }
             }
         }
