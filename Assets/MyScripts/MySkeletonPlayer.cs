@@ -31,7 +31,7 @@ public class MySkeletonPlayer : MonoBehaviour
     private int index;
     bool isOver;
 
-    private const int MAXROUNDS = 3;
+    private const int MAXROUNDS = 1;
     private int roundCounter;
     public Text roundText;
 

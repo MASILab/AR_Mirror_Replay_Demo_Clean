@@ -101,7 +101,8 @@ public class MyJointTracker : MonoBehaviour {
         foreach (var joint in Joints)
         {
             GameObject myJoint = JointRoot.transform.Find(joint.ToString()).gameObject;
-            jointStats[joint].Add(myJoint.transform.position);           
+            jointStats[joint].Add(myJoint.transform.position);
         }
     }
+
 }
