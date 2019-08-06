@@ -645,7 +645,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   joints: []
   newBody: 0
-  JointPrefab: {fileID: 1414733690807290, guid: 06273bc1b20a8c446a22a1ad5c0cfa61,
+  JointPrefab: {fileID: 1927735652150314, guid: 8924e280320b8934b9f7bcc10f13f9e5,
     type: 2}
   JointRoot: {fileID: 720827276}
   ToggleSeg: {fileID: 0}
