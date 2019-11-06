@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections;
 using UnityEngine.Networking;
+using System.IO;
+using System;
 
 public class MySkeletonRenderer : MonoBehaviour
 {
@@ -116,10 +118,19 @@ public class MySkeletonRenderer : MonoBehaviour
         }
 
         
+
         //Log if a new body is detected
         if (newBody)
         {
-            StartCoroutine(GetRequest("https://docs.google.com/forms/d/e/1FAIpQLSe9t2ffOIQF2zNo-W3mGsA0jW0Fpba65AW1vk8C8YI9o1Akyg/formResponse?entry.365241968=REPLAYDEMO&fvv=1"));
+            try
+            {
+                File.AppendAllText("record.txt", "New user reorded at " + DateTime.Now.ToString() + Environment.NewLine);
+            }
+            catch (System.Exception ex)
+            {
+                Debug.Log(ex.Message);
+            }
+            //StartCoroutine(GetRequest("https://docs.google.com/forms/d/e/1FAIpQLSe9t2ffOIQF2zNo-W3mGsA0jW0Fpba65AW1vk8C8YI9o1Akyg/formResponse?entry.365241968=REPLAYDEMO&fvv=1"));
             newBody = false;
             //Debug.Log("Logging new player");
         }
